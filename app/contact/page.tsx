@@ -1,8 +1,10 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import GNB from "../components/GNB";
 
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -24,6 +26,13 @@ export default function ContactPage() {
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -43,7 +52,10 @@ export default function ContactPage() {
     if (formRef.current) observer.observe(formRef.current);
     if (mapRef.current) observer.observe(mapRef.current);
 
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      observer.disconnect();
+    };
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -100,7 +112,6 @@ export default function ContactPage() {
 
   const contactMethods = [
     {
-      icon: "📧",
       title: "이메일",
       subtitle: "Email",
       value: "contact@newdevs.io",
@@ -108,7 +119,6 @@ export default function ContactPage() {
       gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
     },
     {
-      icon: "📱",
       title: "전화",
       subtitle: "Phone",
       value: "010-9062-4281",
@@ -119,17 +129,20 @@ export default function ContactPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0A0A0A', color: '#fff', overflow: 'hidden' }}>
+      <GNB />
       {/* Hero 섹션 */}
       <section 
         ref={heroRef}
         style={{
           height: '100vh',
-          background: 'linear-gradient(135deg, #0A0A0A 0%, #1a1a2e 50%, #16213e 100%)',
+          background: 'linear-gradient(to top, #0A0A0A 100%, #0F131B 100%)',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           position: 'relative',
+          paddingTop: isMobile ? '56px' : '72px',
+          padding: isMobile ? '56px 20px 0 20px' : '72px 0 0 0',
           ...(heroVisible ? fadeInUpVisible : fadeInUp)
         }}
       >
@@ -139,67 +152,89 @@ export default function ContactPage() {
           left: 0,
           right: 0,
           bottom: 0,
-          background: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)',
           pointerEvents: 'none'
         }} />
         
         <div style={{ 
-          fontSize: 80, 
+          fontSize: isMobile ? 48 : 80, 
           fontWeight: 900, 
-          letterSpacing: -3, 
-          marginBottom: 24, 
+          letterSpacing: -2, 
+          marginBottom: isMobile ? 24 : 40, 
+          color: '#fff',
           textAlign: 'center',
-          background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
+          textShadow: '0 1px 100px rgba(0, 30, 255, 1)'
         }}>
           Contact
         </div>
         
         <div style={{ 
-          fontSize: 24, 
+          fontSize: isMobile ? 18 : 40, 
           color: '#A3A3A3', 
           textAlign: 'center', 
-          maxWidth: 800, 
-          lineHeight: 1.6,
-          marginBottom: 40
+          maxWidth: isMobile ? 320 : 800, 
+          lineHeight: 1.5,
+          marginBottom: isMobile ? 40 : 60,
+          textShadow: '0 1px 100px rgba(0, 30, 255, 1)'
         }}>
           새로운 프로젝트를 시작할 준비가 되셨나요?<br/>
-          언제든지 연락주세요. 최고의 솔루션을 제공해드리겠습니다.
+          최고의 솔루션을 제공해드리겠습니다.
         </div>
 
         <div style={{
           display: 'flex',
-          gap: 20,
-          flexWrap: 'wrap',
+          gap: isMobile ? 12 : 20,
+          flexDirection: isMobile ? 'column' : 'row',
+          width: isMobile ? '100%' : 'auto',
+          maxWidth: isMobile ? 280 : 'none',
           justifyContent: 'center'
         }}>
           <button style={{
-            padding: '16px 32px',
+            padding: isMobile ? '16px 24px' : '16px 32px',
             borderRadius: 50,
-            background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
+            background: 'linear-gradient(135deg, #3B82F6 100%, #fff 0%)',
             border: 'none',
             color: '#fff',
-            fontSize: 18,
+            fontSize: isMobile ? 16 : 18,
             fontWeight: 600,
             cursor: 'pointer',
             transition: 'all 0.3s ease',
-            boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
-          }}>
+            boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent'
+          }}
+          onTouchStart={isMobile ? (e) => {
+            e.currentTarget.style.transform = 'scale(0.95)';
+            e.currentTarget.style.background = 'linear-gradient(135deg, #2563eb 100%, #e5e7eb 0%)';
+          } : undefined}
+          onTouchEnd={isMobile ? (e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.background = 'linear-gradient(135deg, #3B82F6 100%, #fff 0%)';
+          } : undefined}
+          >
             프로젝트 문의하기
           </button>
           <button style={{
-            padding: '16px 32px',
+            padding: isMobile ? '16px 24px' : '16px 32px',
             borderRadius: 50,
             background: 'transparent',
             border: '2px solid #3B82F6',
             color: '#3B82F6',
-            fontSize: 18,
+            fontSize: isMobile ? 16 : 18,
             fontWeight: 600,
             cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}>
+            transition: 'all 0.3s ease',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent'
+          }}
+          onTouchStart={isMobile ? (e) => {
+            e.currentTarget.style.transform = 'scale(0.95)';
+            e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)';
+          } : undefined}
+          onTouchEnd={isMobile ? (e) => {
+            e.currentTarget.style.transform = 'scale(1)';
+            e.currentTarget.style.background = 'transparent';
+          } : undefined}
+          >
             포트폴리오 보기
           </button>
         </div>
@@ -209,7 +244,7 @@ export default function ContactPage() {
       <section 
         ref={contactInfoRef}
         style={{
-          padding: '120px 24px',
+          padding: isMobile ? '80px 20px' : '120px 24px',
           background: 'linear-gradient(180deg, #0A0A0A 0%, #111111 100%)',
           ...(contactInfoVisible ? fadeInUpVisible : fadeInUp)
         }}
@@ -217,10 +252,10 @@ export default function ContactPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ 
             textAlign: 'center', 
-            marginBottom: 80 
+            marginBottom: isMobile ? 40 : 80 
           }}>
             <h2 style={{ 
-              fontSize: 48, 
+              fontSize: isMobile ? 32 : 48, 
               fontWeight: 800, 
               marginBottom: 16,
               background: 'linear-gradient(135deg, #fff 0%, #A3A3A3 100%)',
@@ -231,9 +266,9 @@ export default function ContactPage() {
               연락 방법
             </h2>
             <p style={{ 
-              fontSize: 20, 
+              fontSize: isMobile ? 16 : 20, 
               color: '#A3A3A3', 
-              maxWidth: 600, 
+              maxWidth: isMobile ? 280 : 600, 
               margin: '0 auto', 
               lineHeight: 1.6 
             }}>
@@ -243,9 +278,9 @@ export default function ContactPage() {
 
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: 30,
-            marginBottom: 60
+            gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: isMobile ? 20 : 30,
+            marginBottom: isMobile ? 40 : 60
           }}>
             {contactMethods.map((method, index) => (
               <div
@@ -253,27 +288,37 @@ export default function ContactPage() {
                 style={{
                   background: 'linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 100%)',
                   borderRadius: 20,
-                  padding: 30,
+                  padding: isMobile ? 24 : 30,
                   textAlign: 'center',
                   position: 'relative',
                   overflow: 'hidden',
-                                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                   cursor: 'pointer',
-                   ...(contactInfoVisible ? {
-                     ...scaleInVisible,
-                     transitionDelay: `${index * 0.1}s`
-                   } : scaleIn)
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  cursor: 'pointer',
+                  touchAction: 'manipulation',
+                  WebkitTapHighlightColor: 'transparent',
+                  ...(contactInfoVisible ? {
+                    ...scaleInVisible,
+                    transitionDelay: `${index * 0.1}s`
+                  } : scaleIn)
                 }}
-                onMouseEnter={(e) => {
+                onMouseEnter={!isMobile ? (e) => {
                   e.currentTarget.style.transform = 'translateY(-10px) scale(1.02)';
                   e.currentTarget.style.boxShadow = '0 20px 40px rgba(59, 130, 246, 0.2)';
                   e.currentTarget.style.borderColor = '#3B82F6';
-                }}
-                onMouseLeave={(e) => {
+                } : undefined}
+                onMouseLeave={!isMobile ? (e) => {
                   e.currentTarget.style.transform = 'translateY(0) scale(1)';
                   e.currentTarget.style.boxShadow = 'none';
                   e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                }}
+                } : undefined}
+                onTouchStart={isMobile ? (e) => {
+                  e.currentTarget.style.transform = 'scale(0.95)';
+                  e.currentTarget.style.borderColor = '#3B82F6';
+                } : undefined}
+                onTouchEnd={isMobile ? (e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                } : undefined}
               >
                 <div style={{
                   position: 'absolute',
@@ -285,12 +330,8 @@ export default function ContactPage() {
                   borderRadius: '20px 20px 0 0'
                 }} />
                 
-                <div style={{ fontSize: 48, marginBottom: 16 }}>
-                  {method.icon}
-                </div>
-                
                 <h3 style={{ 
-                  fontSize: 24, 
+                  fontSize: isMobile ? 20 : 24, 
                   fontWeight: 700, 
                   marginBottom: 8,
                   color: '#fff'
@@ -299,7 +340,7 @@ export default function ContactPage() {
                 </h3>
                 
                 <p style={{ 
-                  fontSize: 14, 
+                  fontSize: isMobile ? 12 : 14, 
                   color: '#A3A3A3', 
                   marginBottom: 12,
                   textTransform: 'uppercase',
@@ -309,16 +350,17 @@ export default function ContactPage() {
                 </p>
                 
                 <p style={{ 
-                  fontSize: 18, 
-                  fontWeight: 600, 
+                  fontSize: isMobile ? 22 : 28, 
+                  fontWeight: 400, 
                   color: '#3B82F6',
-                  marginBottom: 8
+                  marginBottom: 8,
+                  wordBreak: 'break-all'
                 }}>
                   {method.value}
                 </p>
                 
                 <p style={{ 
-                  fontSize: 14, 
+                  fontSize: isMobile ? 14 : 16, 
                   color: '#A3A3A3' 
                 }}>
                   {method.description}
@@ -333,7 +375,7 @@ export default function ContactPage() {
       <section 
         ref={formRef}
         style={{
-          padding: '120px 24px',
+          padding: isMobile ? '80px 20px' : '120px 24px',
           background: 'linear-gradient(180deg, #111111 0%, #0A0A0A 100%)',
           ...(formVisible ? fadeInUpVisible : fadeInUp)
         }}
@@ -341,10 +383,10 @@ export default function ContactPage() {
         <div style={{ maxWidth: 800, margin: '0 auto' }}>
           <div style={{ 
             textAlign: 'center', 
-            marginBottom: 60 
+            marginBottom: isMobile ? 40 : 60 
           }}>
             <h2 style={{ 
-              fontSize: 48, 
+              fontSize: isMobile ? 32 : 48, 
               fontWeight: 800, 
               marginBottom: 16,
               background: 'linear-gradient(135deg, #fff 0%, #A3A3A3 100%)',
@@ -355,20 +397,20 @@ export default function ContactPage() {
               프로젝트 문의
             </h2>
             <p style={{ 
-              fontSize: 20, 
+              fontSize: isMobile ? 16 : 20, 
               color: '#A3A3A3', 
-              maxWidth: 600, 
+              maxWidth: isMobile ? 280 : 600, 
               margin: '0 auto', 
               lineHeight: 1.6 
             }}>
-              프로젝트에 대한 자세한 정보를 알려주시면, 맞춤형 제안서를 준비해드리겠습니다.
+              프로젝트에 대한 자세한 정보를 알려주시면<br/> 맞춤형 제안서를 준비해드리겠습니다.
             </p>
           </div>
 
           <div style={{
             background: 'linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 100%)',
-            borderRadius: 30,
-            padding: 50,
+            borderRadius: isMobile ? 20 : 30,
+            padding: isMobile ? 24 : 50,
             border: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
           }}>
@@ -389,8 +431,12 @@ export default function ContactPage() {
                 </p>
               </div>
             ) : (
-              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+              <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? 16 : 24 }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                  gap: isMobile ? 16 : 24 
+                }}>
                   <input
                     name="name"
                     type="text"
@@ -399,14 +445,15 @@ export default function ContactPage() {
                     onChange={handleChange}
                     required
                     style={{
-                      padding: 20,
+                      padding: isMobile ? 16 : 20,
                       borderRadius: 15,
                       border: '2px solid rgba(255, 255, 255, 0.1)',
                       background: 'rgba(255, 255, 255, 0.05)',
                       color: '#fff',
-                      fontSize: 16,
+                      fontSize: isMobile ? 16 : 16,
                       transition: 'all 0.3s ease',
-                      outline: 'none'
+                      outline: 'none',
+                      minHeight: isMobile ? 48 : 'auto'
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#3B82F6';
@@ -424,14 +471,15 @@ export default function ContactPage() {
                     value={form.company}
                     onChange={handleChange}
                     style={{
-                      padding: 20,
+                      padding: isMobile ? 16 : 20,
                       borderRadius: 15,
                       border: '2px solid rgba(255, 255, 255, 0.1)',
                       background: 'rgba(255, 255, 255, 0.05)',
                       color: '#fff',
-                      fontSize: 16,
+                      fontSize: isMobile ? 16 : 16,
                       transition: 'all 0.3s ease',
-                      outline: 'none'
+                      outline: 'none',
+                      minHeight: isMobile ? 48 : 'auto'
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#3B82F6';
@@ -444,7 +492,11 @@ export default function ContactPage() {
                   />
                 </div>
                 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
+                  gap: isMobile ? 16 : 24 
+                }}>
                   <input
                     name="email"
                     type="email"
@@ -453,14 +505,15 @@ export default function ContactPage() {
                     onChange={handleChange}
                     required
                     style={{
-                      padding: 20,
+                      padding: isMobile ? 16 : 20,
                       borderRadius: 15,
                       border: '2px solid rgba(255, 255, 255, 0.1)',
                       background: 'rgba(255, 255, 255, 0.05)',
                       color: '#fff',
-                      fontSize: 16,
+                      fontSize: isMobile ? 16 : 16,
                       transition: 'all 0.3s ease',
-                      outline: 'none'
+                      outline: 'none',
+                      minHeight: isMobile ? 48 : 'auto'
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#3B82F6';
@@ -478,14 +531,15 @@ export default function ContactPage() {
                     value={form.phone}
                     onChange={handleChange}
                     style={{
-                      padding: 20,
+                      padding: isMobile ? 16 : 20,
                       borderRadius: 15,
                       border: '2px solid rgba(255, 255, 255, 0.1)',
                       background: 'rgba(255, 255, 255, 0.05)',
                       color: '#fff',
-                      fontSize: 16,
+                      fontSize: isMobile ? 16 : 16,
                       transition: 'all 0.3s ease',
-                      outline: 'none'
+                      outline: 'none',
+                      minHeight: isMobile ? 48 : 'auto'
                     }}
                     onFocus={(e) => {
                       e.target.style.borderColor = '#3B82F6';
@@ -504,18 +558,19 @@ export default function ContactPage() {
                   value={form.message}
                   onChange={handleChange}
                   required
-                  rows={6}
+                  rows={isMobile ? 4 : 6}
                   style={{
-                    padding: 20,
+                    padding: isMobile ? 16 : 20,
                     borderRadius: 15,
                     border: '2px solid rgba(255, 255, 255, 0.1)',
                     background: 'rgba(255, 255, 255, 0.05)',
                     color: '#fff',
-                    fontSize: 16,
+                    fontSize: isMobile ? 16 : 16,
                     resize: 'vertical',
                     transition: 'all 0.3s ease',
                     outline: 'none',
-                    fontFamily: 'inherit'
+                    fontFamily: 'inherit',
+                    minHeight: isMobile ? 120 : 'auto'
                   }}
                   onFocus={(e) => {
                     e.target.style.borderColor = '#3B82F6';
@@ -530,25 +585,36 @@ export default function ContactPage() {
                 <button 
                   type="submit" 
                   style={{
-                    padding: '20px 40px',
+                    padding: isMobile ? '18px 32px' : '20px 40px',
                     borderRadius: 15,
                     background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)',
                     color: '#fff',
-                    fontSize: 18,
+                    fontSize: isMobile ? 16 : 18,
                     fontWeight: 700,
                     border: 'none',
                     cursor: 'pointer',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)'
+                    boxShadow: '0 10px 30px rgba(59, 130, 246, 0.3)',
+                    minHeight: isMobile ? 52 : 'auto',
+                    touchAction: 'manipulation',
+                    WebkitTapHighlightColor: 'transparent'
                   }}
-                  onMouseEnter={(e) => {
+                  onMouseEnter={!isMobile ? (e) => {
                     e.currentTarget.style.transform = 'translateY(-2px)';
                     e.currentTarget.style.boxShadow = '0 15px 35px rgba(59, 130, 246, 0.4)';
-                  }}
-                  onMouseLeave={(e) => {
+                  } : undefined}
+                  onMouseLeave={!isMobile ? (e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = '0 10px 30px rgba(59, 130, 246, 0.3)';
-                  }}
+                  } : undefined}
+                  onTouchStart={isMobile ? (e) => {
+                    e.currentTarget.style.transform = 'scale(0.95)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)';
+                  } : undefined}
+                  onTouchEnd={isMobile ? (e) => {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)';
+                  } : undefined}
                 >
                   문의 보내기
                 </button>
@@ -562,7 +628,7 @@ export default function ContactPage() {
       <section 
         ref={mapRef}
         style={{
-          padding: '120px 24px',
+          padding: isMobile ? '80px 20px' : '120px 24px',
           background: 'linear-gradient(180deg, #0A0A0A 0%, #1a1a2e 100%)',
           ...(mapVisible ? fadeInUpVisible : fadeInUp)
         }}
@@ -570,10 +636,10 @@ export default function ContactPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ 
             textAlign: 'center', 
-            marginBottom: 60 
+            marginBottom: isMobile ? 40 : 60 
           }}>
             <h2 style={{ 
-              fontSize: 48, 
+              fontSize: isMobile ? 32 : 48, 
               fontWeight: 800, 
               marginBottom: 16,
               background: 'linear-gradient(135deg, #fff 0%, #A3A3A3 100%)',
@@ -585,12 +651,12 @@ export default function ContactPage() {
             </h2>
           </div>
 
-                               <div style={{
+          <div style={{
             maxWidth: 900,
             margin: '0 auto',
             display: 'flex',
             flexDirection: 'column',
-            gap: 40
+            gap: isMobile ? 24 : 40
           }}>
             {[
               {
@@ -677,8 +743,8 @@ export default function ContactPage() {
                 key={index}
                 style={{
                   background: 'linear-gradient(145deg, #1a1a1a 0%, #2d2d2d 100%)',
-                  borderRadius: 20,
-                  padding: 40,
+                  borderRadius: isMobile ? 16 : 20,
+                  padding: isMobile ? 24 : 40,
                   border: '1px solid rgba(255, 255, 255, 0.1)',
                   boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
                   ...(mapVisible ? {
@@ -688,16 +754,16 @@ export default function ContactPage() {
                 }}
               >
                 <h3 style={{ 
-                  fontSize: 24, 
+                  fontSize: isMobile ? 18 : 24, 
                   fontWeight: 700, 
-                  marginBottom: 24,
+                  marginBottom: isMobile ? 16 : 24,
                   color: '#3B82F6',
                   lineHeight: 1.4
                 }}>
                   {faq.question}
                 </h3>
                 <div style={{ 
-                  fontSize: 16, 
+                  fontSize: isMobile ? 14 : 16, 
                   color: '#E2E8F0',
                   lineHeight: 1.8
                 }}>

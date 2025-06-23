@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface EstimateFormData {
   companyName: string;
@@ -32,6 +33,7 @@ interface ContactFormData {
 type FormData = EstimateFormData | ContactFormData;
 
 export default function AdminPage() {
+  const router = useRouter();
   const [estimateData, setEstimateData] = useState<EstimateFormData[]>([]);
   const [contactData, setContactData] = useState<ContactFormData[]>([]);
   const [activeTab, setActiveTab] = useState<'estimate' | 'contact'>('estimate');
@@ -97,18 +99,44 @@ export default function AdminPage() {
   const totalCount = estimateData.length + contactData.length;
 
   return (
-    <div style={{ padding: 40, background: "#0A0A0A", minHeight: "100vh", color: "#fff" }}>
+    <div style={{ padding: 180, background: "#0A0A0A", minHeight: "100vh", color: "#fff" }}>
       <div style={{ maxWidth: 1400, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
           <h1 style={{ fontSize: 32, fontWeight: 700 }}>뉴데브 관리자 페이지</h1>
-          <div style={{ 
-            background: '#232833', 
-            padding: '8px 16px', 
-            borderRadius: 8,
-            color: '#94A3B8',
-            fontSize: 14
-          }}>
-            총 {totalCount}건의 문의
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <button
+              onClick={() => router.push('/admin/portfolio')}
+              style={{
+                padding: '12px 24px',
+                background: '#10B981',
+                border: 'none',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#059669';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#10B981';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              포트폴리오 관리
+            </button>
+            <div style={{ 
+              background: '#232833', 
+              padding: '8px 16px', 
+              borderRadius: 8,
+              color: '#94A3B8',
+              fontSize: 14
+            }}>
+              총 {totalCount}건의 문의
+            </div>
           </div>
         </div>
 

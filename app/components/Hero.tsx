@@ -1,8 +1,24 @@
-import React from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import HeroBackgroundSVG from './HeroBackgroundSVG';
 
 const Hero = () => {
+  const router = useRouter();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -80,7 +96,7 @@ const Hero = () => {
           style={{
             textAlign: 'center',
             fontFamily: 'Pretendard',
-            fontSize: '68px',
+            fontSize: isMobile ? '46px' : '68px',
             fontStyle: 'normal',
             fontWeight: 400,
             lineHeight: '120%',
@@ -109,28 +125,33 @@ const Hero = () => {
           style={{
             color: '#A3A3A3',
             fontFamily: 'Pretendard',
-            fontSize: '20px',
+            fontSize: isMobile ? '19px' : '32px',
             fontWeight: 400,
-            lineHeight: '160%',
+            letterSpacing: '-0.48px',
+            lineHeight: '150%',
             textAlign: 'center',
             maxWidth: '600px',
             margin: 0,
           }}
         >
-          빠르게 MVP를 만들고 싶은 스타트업에게 필요한 단 하나의 팀<br />
-          기획부터 디자인, 개발까지  —  단순하고, 명확하게
+          스타트업에게 필요한 단 하나의 팀<br />
+          기획부터 디자인, 개발까지<br />단순하고, 명확하게
         </motion.p>
         <motion.div
           variants={itemVariants}
           style={{
             display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
             gap: '12px',
             marginTop: '44px',
+            width: isMobile ? '100%' : 'auto',
+            maxWidth: isMobile ? '320px' : 'none',
           }}
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => router.push('/portfolio')}
             style={{
               padding: '11px 50.5px',
               borderRadius: '12px',
@@ -149,6 +170,7 @@ const Hero = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() => router.push('/contact')}
             style={{
               padding: '11px 44px',
               borderRadius: '12px',

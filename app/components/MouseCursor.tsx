@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const CURSOR_COUNT = 1;
 
@@ -36,7 +36,19 @@ const cursorStyle = `
   }
 `;
 
+const mobileStyle = `
+  html, body {
+    cursor: auto !important;
+  }
+
+  button:hover {
+    cursor: pointer !important;
+  }
+`;
+
 const MouseCursor = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dotsRef = useRef<HTMLDivElement[]>([]);
   const mouse = useRef({ x: 0, y: 0 });
   const coords = useRef(
@@ -45,6 +57,23 @@ const MouseCursor = () => {
   const isHovering = useRef(false);
 
   useEffect(() => {
+    setMounted(true);
+    const checkMobile = () => {
+      // 터치 기능이 있거나 화면 너비가 768px 이하면 모바일로 판단
+      const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isSmallScreen = window.innerWidth <= 768;
+      setIsMobile(isTouchDevice || isSmallScreen);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || isMobile) return;
+
     const dots = dotsRef.current;
 
     const onMouseMove = (e: MouseEvent) => {
@@ -94,12 +123,16 @@ const MouseCursor = () => {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseover', onMouseOver);
     };
-  }, []);
+  }, [mounted, isMobile]);
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <>
-      <style>{cursorStyle}</style>
-      {Array.from({ length: CURSOR_COUNT }).map((_, i) => (
+      <style>{isMobile ? mobileStyle : cursorStyle}</style>
+      {!isMobile && Array.from({ length: CURSOR_COUNT }).map((_, i) => (
         <div
           key={i}
           className="cursor-dot"

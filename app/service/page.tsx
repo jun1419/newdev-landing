@@ -1,11 +1,11 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import GNB from "../components/GNB";
 import Footer from "../components/Footer";
 
 const SERVICES = [
   {
-    icon: "web.png",
     title: "웹 개발",
     subtitle: "Web Development",
     summary: "반응형 웹, 대시보드, 랜딩페이지, 커머스 등\n다양한 웹 서비스를 빠르고 완성도 높게 구현",
@@ -14,7 +14,6 @@ const SERVICES = [
     features: ["반응형 디자인", "SEO 최적화", "성능 최적화", "크로스 브라우징"]
   },
   {
-    icon: "app.png",
     title: "앱 개발",
     subtitle: "Mobile App Development", 
     summary: "iOS/Android 하이브리드 앱, 네이티브 앱까지\n스타트업에 최적화된 앱을 제작",
@@ -23,7 +22,6 @@ const SERVICES = [
     features: ["크로스 플랫폼", "네이티브 성능", "앱스토어 출시", "푸시 알림"]
   },
   {
-    icon: "Object.png",
     title: "시스템 구축",
     subtitle: "System Architecture",
     summary: "사내 시스템, 관리자 페이지, 자동화 도구 등\n맞춤형 관리 시스템을 구축",
@@ -32,7 +30,6 @@ const SERVICES = [
     features: ["자동화 시스템", "관리자 대시보드", "데이터 분석", "API 연동"]
   },
   {
-    icon: "code.png",
     title: "유지보수",
     subtitle: "Maintenance & Support",
     summary: "기존 서비스의 안정적 운영 및 기능 개선\n성능 최적화, UX 개선까지 책임",
@@ -41,7 +38,6 @@ const SERVICES = [
     features: ["24시간 모니터링", "버그 수정", "성능 개선", "보안 업데이트"]
   },
   {
-    icon: "MVP.png",
     title: "MVP 빠른 개발",
     subtitle: "Rapid MVP Development",
     summary: "아이디어를 빠르게 실현하는 프로토타입 제작\n데이터 기반 피드백 루프까지 고려한 구조 설계",
@@ -62,6 +58,7 @@ const PROCESS_STEPS = [
 export default function ServicePage() {
   const router = useRouter();
   const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   
   // 애니메이션 상태
   const [heroVisible, setHeroVisible] = useState(true);
@@ -74,6 +71,13 @@ export default function ServicePage() {
   const processRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -89,7 +93,10 @@ export default function ServicePage() {
     if (servicesRef.current) observer.observe(servicesRef.current);
     if (processRef.current) observer.observe(processRef.current);
     
-    return () => observer.disconnect();
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      observer.disconnect();
+    };
   }, []);
   
   const fadeInUp = {
@@ -110,7 +117,8 @@ export default function ServicePage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#000', color: '#fff', paddingBottom: 80 }}>
+    <div style={{ minHeight: '100vh', background: '#000', color: '#fff' }}>
+      <GNB />
       {/* Hero Section */}
       <div ref={heroRef} style={{ 
         width: '100vw', 
@@ -121,13 +129,34 @@ export default function ServicePage() {
         justifyContent: 'center', 
         alignItems: 'center',
         background: 'radial-gradient(ellipse at center, rgba(49, 130, 237, 0.1) 0%, rgba(0, 0, 0, 1) 70%)',
+        padding: isMobile ? '0 20px' : '0',
         ...fadeInUpVisible
       }}>
-        <div style={{ fontSize: 20, color: '#3182ED', fontWeight: 600, marginBottom: 16, letterSpacing: '2px' }}>SERVICES</div>
-        <h1 style={{ fontSize: 64, fontWeight: 800, marginBottom: 32, background: 'linear-gradient(135deg, #fff 0%, #3182ED 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+        <div style={{ 
+          fontSize: isMobile ? 16 : 20, 
+          color: '#3182ED', 
+          fontWeight: 600, 
+          marginBottom: isMobile ? 12 : 16, 
+          letterSpacing: '2px' 
+        }}>SERVICES</div>
+        <h1 style={{ 
+          fontSize: isMobile ? 36 : 64, 
+          fontWeight: 800, 
+          marginBottom: isMobile ? 24 : 32, 
+          background: 'linear-gradient(135deg, #fff 0%, #3182ED 100%)', 
+          WebkitBackgroundClip: 'text', 
+          WebkitTextFillColor: 'transparent' 
+        }}>
           사업도 뉴데브와 함께
         </h1>
-        <div style={{ fontSize: 40, color: '#A3A3A3', fontWeight: 400, lineHeight: 1.5, maxWidth: 600, textShadow: '0 2px 100px #3182ED' }}>
+        <div style={{ 
+          fontSize: isMobile ? 18 : 40, 
+          color: '#A3A3A3', 
+          fontWeight: 400, 
+          lineHeight: 1.5, 
+          maxWidth: isMobile ? 320 : 600, 
+          textShadow: '0 2px 100px #3182ED' 
+        }}>
           사업을 시작하셨나요?<br />
           사업의 시작부터 성장, 관리까지<br />
           <span style={{ color: '#3182ED', fontWeight: 600 }}>이제 뉴데브와 함께 하세요.</span>
@@ -142,12 +171,12 @@ export default function ServicePage() {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '80px 40px'
+        padding: isMobile ? '60px 20px' : '80px 40px'
       }}>
         <div style={{ 
-          fontSize: 48, 
+          fontSize: isMobile ? 32 : 48, 
           fontWeight: 700, 
-          marginBottom: 80, 
+          marginBottom: isMobile ? 40 : 80, 
           textAlign: 'center',
           ...(servicesVisible ? fadeInUpVisible : fadeInUp)
         }}>
@@ -156,17 +185,17 @@ export default function ServicePage() {
         
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-          gap: 40,
+          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(350px, 1fr))',
+          gap: isMobile ? 24 : 40,
           maxWidth: 1400,
           width: '100%'
         }}>
           {SERVICES.map((service, idx) => (
             <div key={service.title} style={{
               background: 'linear-gradient(135deg, #1a1d29 0%, #0f1419 100%)',
-              borderRadius: 40,
-              padding: 40,
-              minHeight: 400,
+              borderRadius: isMobile ? 20 : 40,
+              padding: isMobile ? 24 : 40,
+              minHeight: isMobile ? 280 : 400,
               display: 'flex',
               flexDirection: 'column',
               position: 'relative',
@@ -185,16 +214,16 @@ export default function ServicePage() {
               })
             }}
             onClick={() => handleServiceClick(service.title)}
-            onMouseEnter={(e) => {
+            onMouseEnter={!isMobile ? (e) => {
               e.currentTarget.style.transform = 'translateY(-10px) scale(1.02)';
               e.currentTarget.style.boxShadow = '0 20px 60px rgba(49, 130, 237, 0.3)';
               e.currentTarget.style.border = '2px solid #3182ED';
-            }}
-            onMouseLeave={(e) => {
+            } : undefined}
+            onMouseLeave={!isMobile ? (e) => {
               e.currentTarget.style.transform = 'translateY(0px) scale(1)';
               e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.3)';
               e.currentTarget.style.border = '2px solid rgba(255,255,255,0.1)';
-            }}
+            } : undefined}
             >
               {/* 배경 그라디언트 */}
               <div style={{
@@ -205,39 +234,47 @@ export default function ServicePage() {
                 width: '100%',
                 height: '8px',
                 background: service.gradient,
-                borderRadius: '40px 40px 0 0',
+                borderRadius: isMobile ? '20px 20px 0 0' : '40px 40px 0 0',
                 opacity: 0.7,
                 transition: 'opacity 0.3s'
               }} />
-              
-              <img 
-                src={service.icon} 
-                alt={service.title + ' 아이콘'} 
-                style={{ 
-                  width: 80, 
-                  height: 80, 
-                  marginBottom: 20,
-                }} 
-              />
-              <div style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>{service.title}</div>
-              <div style={{ fontSize: 14, color: '#3182ED', fontWeight: 500, marginBottom: 20, letterSpacing: '1px' }}>{service.subtitle}</div>
-              <div style={{ color: '#A3A3A3', fontSize: 16, lineHeight: 1.6, marginBottom: 24, whiteSpace: 'pre-line', flex: 1 }}>
+
+              <div style={{ 
+                fontSize: isMobile ? 22 : 28, 
+                fontWeight: 700, 
+                marginBottom: isMobile ? 6 : 8 
+              }}>{service.title}</div>
+              <div style={{ 
+                fontSize: isMobile ? 12 : 14, 
+                color: '#3182ED', 
+                fontWeight: 500, 
+                marginBottom: isMobile ? 16 : 20, 
+                letterSpacing: '1px' 
+              }}>{service.subtitle}</div>
+              <div style={{ 
+                color: '#A3A3A3', 
+                fontSize: isMobile ? 14 : 16, 
+                lineHeight: 1.6, 
+                marginBottom: isMobile ? 16 : 24, 
+                whiteSpace: 'pre-line', 
+                flex: 1 
+              }}>
                 {service.summary}
               </div>
               
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: 8,
-                marginBottom: 20
+                gap: isMobile ? 6 : 8,
+                marginBottom: isMobile ? 16 : 20
               }}>
                 {service.features.map((feature, i) => (
                   <span key={i} style={{
                     background: 'rgba(49, 130, 237, 0.15)',
                     color: '#3182ED',
-                    padding: '4px 12px',
+                    padding: isMobile ? '3px 8px' : '4px 12px',
                     borderRadius: 4,
-                    fontSize: 14,
+                    fontSize: isMobile ? 12 : 14,
                     fontWeight: 500
                   }}>
                     {feature}
@@ -250,9 +287,13 @@ export default function ServicePage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                paddingTop: 20
+                paddingTop: isMobile ? 16 : 20
               }}>
-                <span style={{ color: '#3182ED', fontSize: 16, fontWeight: 600 }}>
+                <span style={{ 
+                  color: '#3182ED', 
+                  fontSize: isMobile ? 14 : 16, 
+                  fontWeight: 600 
+                }}>
                   견적 확인하기
                 </span>
               </div>
@@ -269,25 +310,28 @@ export default function ServicePage() {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: '80px 40px',
+        padding: isMobile ? '60px 20px' : '80px 40px',
         background: 'linear-gradient(180deg, #000 0%, #0a0f1c 50%, #000 100%)'
       }}>
         <div style={{ 
-          fontSize: 48, 
+          fontSize: isMobile ? 32 : 48, 
           fontWeight: 700, 
-          marginBottom: 60, 
+          marginBottom: isMobile ? 40 : 60, 
           textAlign: 'center',
           ...(processVisible ? fadeInUpVisible : fadeInUp)
         }}>
           개발 프로세스
         </div>
         
-        <div style={{ maxWidth: 1200, width: '100%' }}>
+        <div style={{ 
+          maxWidth: 1200, 
+          width: '100%' 
+        }}>
           {PROCESS_STEPS.map((step, idx) => (
             <div key={step.step} style={{
               display: 'flex',
-              alignItems: 'center',
-              marginBottom: 60,
+              alignItems: isMobile ? 'flex-start' : 'center',
+              marginBottom: isMobile ? 40 : 60,
               transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
               transitionDelay: `${idx * 0.2}s`,
               ...(processVisible ? {
@@ -295,27 +339,37 @@ export default function ServicePage() {
                 transform: 'translateX(0px)',
               } : {
                 opacity: 0,
-                transform: idx % 2 === 0 ? 'translateX(-60px)' : 'translateX(60px)',
+                transform: isMobile ? 'translateY(30px)' : (idx % 2 === 0 ? 'translateX(-60px)' : 'translateX(60px)'),
               })
             }}>
               <div style={{
-                width: 80,
-                height: 80,
-                borderRadius: 40,
+                width: isMobile ? 60 : 80,
+                height: isMobile ? 60 : 80,
+                borderRadius: isMobile ? 30 : 40,
                 background: 'linear-gradient(135deg, #3182ED 0%, #1e40af 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 20,
-                fontWeight: 700,
-                marginRight: 40,
-                boxShadow: '0 10px 30px rgba(49, 130, 237, 0.3)'
+                fontSize: isMobile ? 16 : 20,
+                fontWeight: 500,
+                marginRight: isMobile ? 20 : 40,
+                boxShadow: '0 10px 30px rgba(49, 130, 237, 0.3)',
+                flexShrink: 0
               }}>
                 {step.step}
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>{step.title}</div>
-                <div style={{ color: '#A3A3A3', fontSize: 16, lineHeight: 1.6, whiteSpace: 'pre-line' }}>{step.desc}</div>
+                <div style={{ 
+                  fontSize: isMobile ? 20 : 28, 
+                  fontWeight: 700, 
+                  marginBottom: isMobile ? 6 : 8 
+                }}>{step.title}</div>
+                <div style={{ 
+                  color: '#A3A3A3', 
+                  fontSize: isMobile ? 14 : 20, 
+                  lineHeight: 1.5, 
+                  whiteSpace: 'pre-line' 
+                }}>{step.desc}</div>
               </div>
             </div>
           ))}

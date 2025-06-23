@@ -1,4 +1,5 @@
-import React from 'react';
+"use client";
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const steps = [
@@ -24,36 +25,39 @@ const steps = [
   },
 ];
 
-const responsiveStyle = `
-@media (max-width: 768px) {
-  .process-circles {
-    flex-direction: column !important;
-    align-items: center !important;
-    margin-left: 0 !important;
-  }
-  .process-circle {
-    margin-left: 0 !important;
-    margin-top: 16px !important;
-    margin-bottom: 16px !important;
-    width: clamp(160px, 60vw, 320px) !important;
-    height: clamp(160px, 60vw, 320px) !important;
-    min-width: clamp(160px, 60vw, 320px) !important;
-    min-height: clamp(160px, 60vw, 320px) !important;
-    max-width: 320px !important;
-    max-height: 320px !important;
-    padding: 40px 16px !important;
-  }
-  .process-circle-inner {
-    align-items: center !important;
-    text-align: center !important;
-  }
-  .process-circle-inner * {
-    text-align: center !important;
-  }
-}
-`;
-
 const ProcessSection = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // 마운트되기 전에는 로딩 상태
+  if (!mounted) {
+    return (
+      <section style={{
+        display: 'flex',
+        width: '100%',
+        padding: '140px 20px',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '400px',
+      }}>
+        <div style={{ color: '#94A3B8', fontSize: '16px' }}>Loading...</div>
+      </section>
+    );
+  }
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -96,20 +100,28 @@ const ProcessSection = () => {
       style={{
         display: 'flex',
         width: '100%',
-        padding: '140px 92px 140px 92px',
+        padding: isMobile ? '120px 20px' : '140px 92px',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: 100,
+        gap: isMobile ? 60 : 100,
         boxSizing: 'border-box',
       }}
     >
-      <style>{responsiveStyle}</style>
-      <motion.div variants={itemVariants} style={{ width: '100%', maxWidth: 1440, margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24 }}>
+      {/* 헤더 */}
+      <motion.div variants={itemVariants} style={{ 
+        width: '100%', 
+        maxWidth: 1440, 
+        margin: '0 auto', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        gap: 24 
+      }}>
         <h2 style={{
           color: '#FFF',
           textAlign: 'center',
           fontFamily: 'Pretendard',
-          fontSize: 52,
+          fontSize: isMobile ? 32 : 52,
           fontStyle: 'normal',
           fontWeight: 400,
           lineHeight: '120%',
@@ -121,7 +133,7 @@ const ProcessSection = () => {
         <p style={{
           color: '#94A3B8',
           fontFamily: 'Pretendard',
-          fontSize: 20,
+          fontSize: isMobile ? 16 : 20,
           fontWeight: 400,
           lineHeight: '140%',
           textAlign: 'center',
@@ -131,49 +143,86 @@ const ProcessSection = () => {
           체계적인 4단계 프로세스로 여러분의 아이디어를 현실로 만들어갑니다.
         </p>
       </motion.div>
+
+      {/* 프로세스 스텝들 */}
       <motion.div
         variants={containerVariants}
-        className="process-circles"
         style={{
           width: '100%',
           maxWidth: '100%',
-          marginLeft: 0,
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: isMobile ? 'column' : 'row',
           justifyContent: 'center',
+          alignItems: 'center',
+          gap: isMobile ? 32 : 0,
         }}
       >
         {steps.map((step, i) => (
           <motion.div
             key={i}
             variants={circleVariants}
-            whileHover={{ scale: 1.05 }}
+            whileHover={!isMobile ? { scale: 1.05 } : {}}
+            whileTap={isMobile ? { scale: 0.95 } : {}}
             transition={{ duration: 0.2 }}
-            className="process-circle"
             style={{
               display: 'flex',
-              width: 'clamp(220px, 22vw, 400px)',
-              height: 'clamp(220px, 22vw, 400px)',
-              minWidth: 'clamp(220px, 22vw, 400px)',
-              minHeight: 'clamp(220px, 22vw, 400px)',
-              maxWidth: 400,
-              maxHeight: 400,
+              width: isMobile ? '100%' : 360,
+              height: isMobile ? 'auto' : 360,
+              maxWidth: isMobile ? 320 : 360,
+              minHeight: isMobile ? 280 : 360,
               flexShrink: 0,
-              aspectRatio: '1/1',
-              padding: '100px 60px',
+              aspectRatio: isMobile ? 'auto' : '1/1',
+              padding: isMobile ? '40px 32px' : '80px 50px',
               flexDirection: 'column',
-              alignItems: 'flex-start',
+              alignItems: isMobile ? 'center' : 'flex-start',
               justifyContent: 'center',
-              gap: 24,
-              borderRadius: 200,
+              gap: isMobile ? 20 : 24,
+              borderRadius: isMobile ? 32 : 180,
               background: 'linear-gradient(270deg, #000 0%, #0F131B 100%)',
-              marginLeft: i === 0 ? 0 : -40,
+              marginLeft: isMobile ? 0 : (i === 0 ? 0 : -32),
+              zIndex: isMobile ? 1 : (steps.length - i),
+              position: 'relative',
+              border: isMobile ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+              boxShadow: isMobile ? '0 4px 32px rgba(0, 0, 0, 0.3)' : 'none',
             }}
           >
-            <div style={{ color: '#35507B', fontWeight: 500, fontSize: 32, fontFamily: 'Pretendard', letterSpacing: '-0.64px' }}>{step.num}</div>
-            <div className="process-circle-inner" style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12, width: '100%' }}>
-              <div style={{ color: '#fff', fontWeight: 600, fontSize: 24, fontFamily: 'Pretendard', letterSpacing: '-0.48px', textAlign: 'left' }}>{step.title}</div>
-              <div style={{ color: '#94A3B8', fontWeight: 400, fontSize: 16, fontFamily: 'Pretendard', lineHeight: '150%', letterSpacing: '-0.32px', textAlign: 'left' }}>{step.desc}</div>
+            <div style={{ 
+              color: '#35507B', 
+              fontWeight: 500, 
+              fontSize: isMobile ? 28 : 32, 
+              fontFamily: 'Pretendard', 
+              letterSpacing: isMobile ? '-0.56px' : '-0.64px' 
+            }}>
+              {step.num}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: isMobile ? 'center' : 'flex-start', 
+              gap: 12, 
+              width: '100%',
+              textAlign: isMobile ? 'center' : 'left'
+            }}>
+              <div style={{ 
+                color: '#fff', 
+                fontWeight: 600, 
+                fontSize: isMobile ? 24 : 24, 
+                fontFamily: 'Pretendard', 
+                letterSpacing: isMobile ? '-0.4px' : '-0.48px' 
+              }}>
+                {step.title}
+              </div>
+              <div style={{ 
+                color: '#94A3B8', 
+                fontWeight: 400, 
+                fontSize: isMobile ? 16 : 16, 
+                fontFamily: 'Pretendard', 
+                lineHeight: '150%', 
+                letterSpacing: isMobile ? '-0.28px' : '-0.32px',
+                textAlign: isMobile ? 'center' : 'left'
+              }}>
+                {step.desc}
+              </div>
             </div>
           </motion.div>
         ))}
