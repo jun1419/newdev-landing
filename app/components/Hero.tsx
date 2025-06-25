@@ -1,12 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useRouter } from 'next/navigation';
-import HeroBackgroundSVG from './HeroBackgroundSVG';
+// import { useRouter } from 'next/navigation';
+// import HeroBackgroundSVG from './HeroBackgroundSVG'; // 동영상으로 교체
 
 const Hero = () => {
-  const router = useRouter();
   const [isMobile, setIsMobile] = useState(false);
+  const [videoProgress, setVideoProgress] = useState(0);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -16,8 +17,21 @@ const Hero = () => {
     checkMobile();
     window.addEventListener('resize', checkMobile);
     
+    // 동영상 재생 속도 조절
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5; // 50% 속도로 느리게 재생
+    }
+    
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // 동영상 진행률 업데이트
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const progress = (videoRef.current.currentTime / videoRef.current.duration) * 100;
+      setVideoProgress(progress);
+    }
+  };
   
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -55,8 +69,49 @@ const Hero = () => {
         background: '#0F131B',
       }}
     >
-      {/* SVG 백그라운드 */}
-      <HeroBackgroundSVG />
+      {/* 동영상 백그라운드 */}
+      <video
+        ref={videoRef}
+        autoPlay
+        muted
+        loop
+        playsInline
+        onLoadedData={() => {
+          // 동영상이 로드된 후에도 재생 속도 설정
+          if (videoRef.current) {
+            videoRef.current.playbackRate = 0.75;
+          }
+        }}
+        onTimeUpdate={handleTimeUpdate}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          zIndex: 1,
+          opacity: 0.7, // 동영상 투명도 조절 (필요시 수정)
+        }}
+      >
+        <source src="/mainhero-background.mp4" type="video/mp4" />
+        <source src="/mainhero-background.webm" type="video/webm" />
+        {/* 동영상을 지원하지 않는 브라우저를 위한 폴백 */}
+        Your browser does not support the video tag.
+      </video>
+      
+      {/* 동영상 위에 오버레이 (선택사항) */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          background: 'rgba(15, 19, 27, 0.45)', // 어두운 오버레이
+          zIndex: 1,
+        }}
+      />
 
       {/* 메인 콘텐츠 */}
       <motion.div
@@ -74,8 +129,8 @@ const Hero = () => {
         }}
       >
         {/* 로고 SVG */}
-        <motion.div variants={itemVariants} style={{ width: 158, marginBottom: 16 }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="158" height="19" viewBox="0 0 140 26" fill="none">
+        <motion.div variants={itemVariants} style={{ width: 180, marginBottom: 24 }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="180" height="auto" viewBox="0 0 140 26" fill="none">
             <g clipPath="url(#clip0_38_687)">
               <path d="M140 0L131.029 25.118H125.503L116.533 0H121.628L128.266 18.9821H128.338L134.905 0H140Z" fill="white"/>
               <path d="M105.81 14.3532V20.8121H115.821V25.118H100.786V0H115.821V4.30595H105.81V10.0472H113.668V14.3532H105.81Z" fill="white"/>
@@ -98,23 +153,27 @@ const Hero = () => {
             fontFamily: 'Pretendard',
             fontSize: isMobile ? '46px' : '68px',
             fontStyle: 'normal',
-            fontWeight: 400,
-            lineHeight: '120%',
+            fontWeight: 600,
+            lineHeight: '130%',
             letterSpacing: '-1.36px',
-            color: '#A3A3A3',
+            color: '#fff',
             margin: 0,
             padding: 0,
+            textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
           }}
         >
           스타트업을 위한<br />
           <span
             style={{
-              fontWeight: 600,
-              background: 'linear-gradient(180deg, #626262 0%, #FFF 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              color: 'transparent',
+              fontFamily: 'Pretendard',
+              fontSize: isMobile ? '46px' : '68px',
+             fontWeight: 600,
+             lineHeight: '130%',
+             letterSpacing: '-1.36px',
+             color: '#fff',
+             margin: 0,
+             padding: 0,
+             textShadow: '0 0 10px rgba(0, 0, 0, 0.5)',
             }}
           >
             웹&앱 개발팀
@@ -125,67 +184,48 @@ const Hero = () => {
           style={{
             color: '#A3A3A3',
             fontFamily: 'Pretendard',
-            fontSize: isMobile ? '19px' : '32px',
-            fontWeight: 400,
+            fontSize: isMobile ? '18px' : '40px',
+            fontWeight: 300,
             letterSpacing: '-0.48px',
-            lineHeight: '150%',
+            lineHeight: '160%',
             textAlign: 'center',
             maxWidth: '600px',
             margin: 0,
           }}
         >
-          스타트업에게 필요한 단 하나의 팀<br />
           기획부터 디자인, 개발까지<br />단순하고, 명확하게
         </motion.p>
+        
+        {/* 동영상 진행률 바 */}
         <motion.div
           variants={itemVariants}
           style={{
-            display: 'flex',
-            flexDirection: isMobile ? 'column' : 'row',
-            gap: '12px',
-            marginTop: '44px',
-            width: isMobile ? '100%' : 'auto',
-            maxWidth: isMobile ? '320px' : 'none',
+            marginTop: '60px',
+            width: isMobile ? '90%' : '400px',
+            maxWidth: '400px',
           }}
         >
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.push('/portfolio')}
+          <div
             style={{
-              padding: '11px 50.5px',
-              borderRadius: '12px',
-              background: '#3182ED',
-              color: '#FFFFFF',
-              border: 'none',
-              fontSize: '16px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              fontFamily: 'Pretendard',
-              boxShadow: '0 2px 8px 0 rgba(49,130,237,0.15)',
+              width: '100%',
+              height: '2px',
+              background: 'rgba(255, 255, 255, 0.2)',
+              borderRadius: '1px',
+              overflow: 'hidden',
+              position: 'relative',
             }}
           >
-            포트폴리오 보기
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => router.push('/contact')}
-            style={{
-              padding: '11px 44px',
-              borderRadius: '12px',
-              background: 'transparent',
-              color: '#3182ED',
-              border: '1.5px solid #3182ED',
-              fontSize: '16px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              fontFamily: 'Pretendard',
-              boxShadow: '0 2px 8px 0 rgba(49,130,237,0.10)',
-            }}
-          >
-            프로젝트 문의하기
-          </motion.button>
+            <div
+              style={{
+                width: `${videoProgress}%`,
+                height: '100%',
+                background: 'linear-gradient(90deg, #3182ED 0%, #64B5F6 100%)',
+                borderRadius: '1px',
+                transition: 'width 0.1s ease-out',
+                boxShadow: '0 0 8px rgba(49, 130, 237, 0.5)',
+              }}
+            />
+          </div>
         </motion.div>
       </motion.div>
     </motion.section>
